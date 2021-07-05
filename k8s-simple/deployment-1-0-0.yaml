@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-1-0-0
+  namespace: canary-simple
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello
+      version: 1-0-0
+  template:
+    metadata:
+      labels:
+        app: hello
+        version: 1-0-0
+    spec:
+      containers:
+      - name: http-echo
+        image: hashicorp/http-echo
+        args:
+          - "-text=version 1-0-0"
