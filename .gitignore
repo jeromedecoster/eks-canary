@@ -8,6 +8,7 @@ terraform.tfvars
 tfplan
 *.tfstate
 *.tfstate.backup
+*.tfstate.*
 .key
 .ecr
 kubeconfig_*
