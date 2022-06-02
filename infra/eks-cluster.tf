@@ -1,31 +1,42 @@
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  version = "~> 16.2"
-  
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
+
   cluster_name    = var.project_name
-  cluster_version = "1.20"
-  subnets         = module.vpc.private_subnets
+  cluster_version = "1.21"
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
 
-  workers_group_defaults = {
-    root_volume_type = "gp2"
+  # cluster_endpoint_private_access = true
+  # cluster_endpoint_public_access  = true
+
+  eks_managed_node_group_defaults = {
+    disk_size      = 8
+    instance_types = ["t2.medium"]
   }
 
-  worker_groups = [
-    {
-      name                          = "worker-group-1"
-      instance_type                 = "t2.small"
-      asg_desired_capacity          = 2
+  eks_managed_node_groups = {
+    worker-group-1 = {
+      # min_size     = 1
+      # max_size     = 2
+      # desired_size = 2
+
+      instance_types                = ["t2.small"]
+      capacity_type                 = "ON_DEMAND" # SPOT
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
-    },
-    {
-      name                          = "worker-group-2"
-      instance_type                 = "t2.medium"
+    }
+
+    worker-group-2 = {
+      min_size     = 1
+      max_size     = 2
+      desired_size = 1
+
+      instance_types                = ["t2.medium"]
+      capacity_type                 = "ON_DEMAND" # SPOT
       additional_security_group_ids = [aws_security_group.worker_group_mgmt_two.id]
-      asg_desired_capacity          = 1
-    },
-  ]
+    }
+  }
 }
 
 data "aws_eks_cluster" "cluster" {

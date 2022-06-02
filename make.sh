@@ -144,10 +144,17 @@ k8s-nginx-1.1.0() {
 destroy() {
     # uninstall nginx using installed using helm
     helm uninstall ingress-nginx --namespace ingress-nginx
-    kubectl delete ns ingress-nginx
+    sleep 10
 
     # delete eks content
-    kubectl delete ns hello-prod
+    log delete namespace ingress-nginx
+    kubectl delete ns ingress-nginx --ignore-not-found --wait
+
+    log delete namespace canary-simple
+    kubectl delete ns canary-simple --ignore-not-found --wait
+
+    log delete namespace hello-prod
+    kubectl delete ns hello-prod --ignore-not-found --wait
 
     # terraform destroy
     cd "$PROJECT_DIR/infra"
